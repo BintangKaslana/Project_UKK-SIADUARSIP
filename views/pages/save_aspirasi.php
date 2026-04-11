@@ -26,4 +26,4 @@ $sqlDetail = "INSERT INTO aspirasi (aspiration_id, status, feedback) VALUES (?, 
 $stmt = $conn->prepare($sqlDetail);
 $stmt->execute([$aspiration_id]);
 
-header('Location: ' . BASE_PATH . '/?message=success');
+header('Location: ' . BASE_PATH . '/aspirasi?message=success');
