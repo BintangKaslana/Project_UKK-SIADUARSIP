@@ -18,7 +18,7 @@
         <!-- Menu desktop -->
         <div class="hidden md:flex items-center gap-6">
             <a href="/ukk_bintang_26/" class="text-white hover:text-[#FFDD44] transition text-sm font-medium">Beranda</a>
-            <a href="/ukk_bintang_2git6/aspirasi" class="text-white hover:text-[#FFDD44] transition text-sm font-medium">Sampaikan Aspirasi</a>
+            <a href="/ukk_bintang_26/aspirasi" class="text-white hover:text-[#FFDD44] transition text-sm font-medium">Sampaikan Aspirasi</a>
             <a href="/ukk_bintang_26/histori" class="text-white hover:text-[#FFDD44] transition text-sm font-medium">Histori Aspirasi</a>
         </div>
         <!-- Hamburger mobile -->
