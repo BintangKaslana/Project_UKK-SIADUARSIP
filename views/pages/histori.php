@@ -1,22 +1,25 @@
-<div class="max-w-4xl mx-auto px-4 py-10">
-    <h2 class="text-3xl font-bold text-[#4455DD] mb-1">Histori Aspirasi</h2>
-    <p class="text-gray-500 mb-6">Masukkan NIS kamu untuk melihat histori pengaduanmu.</p>
+<div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="mb-4">
+        <p class="text-[#33AAEE] text-xs font-bold tracking-widest uppercase mb-1">✦ Cek Pengaduan</p>
+        <h2 class="text-2xl font-bold text-[#4455DD] mb-1">Histori Aspirasi</h2>
+        <p class="text-gray-500 text-sm">Masukkan NIS kamu untuk melihat histori pengaduanmu.</p>
+    </div>
 
-    <div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="bg-white rounded-xl shadow-lg border-t-4 border-[#33AAEE] p-5 mb-4">
         <form method="get" class="flex gap-3 items-end">
             <div class="flex-1">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">NIS</label>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">NIS</label>
                 <input type="text" name="nis" placeholder="Contoh: 57575249"
                        value="<?= htmlspecialchars($_GET['nis'] ?? '') ?>"
-                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4455DD]">
+                       class="w-full border-2 border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#33AAEE] transition">
             </div>
             <button type="submit"
-                    class="bg-[#4455DD] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+                    class="bg-[#4455DD] text-white px-6 py-1.5 rounded-lg font-semibold hover:bg-[#33AAEE] transition text-sm">
                 Cari
             </button>
             <?php if (!empty($_GET['nis'])) { ?>
                 <a href="/ukk_bintang_26/histori"
-                   class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+                   class="bg-gray-200 text-gray-700 px-6 py-1.5 rounded-lg font-semibold hover:opacity-90 transition text-sm">
                     Reset
                 </a>
             <?php } ?>
@@ -39,21 +42,21 @@
         $rows = $stmt->fetchAll();
 
         if (count($rows) === 0) {
-            echo "<div class='bg-[#FFDD44] text-gray-800 px-4 py-3 rounded-lg'>
+            echo "<div class='bg-[#FFDD44]/20 border-l-4 border-[#FFDD44] px-4 py-3 rounded text-sm text-gray-700'>
                     Tidak ada pengaduan untuk NIS <strong>$filterNis</strong>.
                   </div>";
         } else {
-            echo "<p class='text-gray-500 mb-3'>Menampilkan <strong>" . count($rows) . " pengaduan</strong> untuk NIS <strong>" . htmlspecialchars($filterNis) . "</strong></p>";
+            echo "<p class='text-gray-500 text-sm mb-2'>Menampilkan <strong>" . count($rows) . " pengaduan</strong> untuk NIS <strong>" . htmlspecialchars($filterNis) . "</strong></p>";
             echo "<div class='overflow-x-auto'>";
             echo "<table class='w-full bg-white rounded-xl shadow text-sm'>";
-            echo "<thead><tr class='bg-[#4455DD] text-white'>
-                    <th class='px-4 py-3 text-left rounded-tl-xl'>No</th>
-                    <th class='px-4 py-3 text-left'>Kategori</th>
-                    <th class='px-4 py-3 text-left'>Lokasi</th>
-                    <th class='px-4 py-3 text-left'>Deskripsi</th>
-                    <th class='px-4 py-3 text-left'>Status</th>
-                    <th class='px-4 py-3 text-left'>Feedback</th>
-                    <th class='px-4 py-3 text-left rounded-tr-xl'>Tanggal</th>
+            echo "<thead><tr class='bg-[#4455DD] text-white text-xs'>
+                    <th class='px-3 py-2 text-left'>No</th>
+                    <th class='px-3 py-2 text-left'>Kategori</th>
+                    <th class='px-3 py-2 text-left'>Lokasi</th>
+                    <th class='px-3 py-2 text-left'>Deskripsi</th>
+                    <th class='px-3 py-2 text-left'>Status</th>
+                    <th class='px-3 py-2 text-left'>Feedback</th>
+                    <th class='px-3 py-2 text-left'>Tanggal</th>
                   </tr></thead><tbody>";
             $no = 1;
             foreach ($rows as $row) {
@@ -64,19 +67,19 @@
                     default    => 'bg-gray-200 text-gray-800'
                 };
                 echo "<tr class='border-t border-gray-100 hover:bg-gray-50'>";
-                echo "<td class='px-4 py-3'>" . $no++ . "</td>";
-                echo "<td class='px-4 py-3'>" . htmlspecialchars($row['category_name']) . "</td>";
-                echo "<td class='px-4 py-3'>" . htmlspecialchars($row['location']) . "</td>";
-                echo "<td class='px-4 py-3'>" . htmlspecialchars($row['description']) . "</td>";
-                echo "<td class='px-4 py-3'><span class='px-2 py-1 rounded-full text-xs font-semibold $statusClass'>" . ucfirst($row['status']) . "</span></td>";
-                echo "<td class='px-4 py-3'>" . htmlspecialchars($row['feedback'] ?? '-') . "</td>";
-                echo "<td class='px-4 py-3'>" . date('d-m-Y', strtotime($row['created_at'])) . "</td>";
+                echo "<td class='px-3 py-2'>" . $no++ . "</td>";
+                echo "<td class='px-3 py-2'>" . htmlspecialchars($row['category_name']) . "</td>";
+                echo "<td class='px-3 py-2'>" . htmlspecialchars($row['location']) . "</td>";
+                echo "<td class='px-3 py-2'>" . htmlspecialchars($row['description']) . "</td>";
+                echo "<td class='px-3 py-2'><span class='px-2 py-1 rounded-full text-xs font-semibold $statusClass'>" . ucfirst($row['status']) . "</span></td>";
+                echo "<td class='px-3 py-2'>" . htmlspecialchars($row['feedback'] ?? '-') . "</td>";
+                echo "<td class='px-3 py-2'>" . date('d-m-Y', strtotime($row['created_at'])) . "</td>";
                 echo "</tr>";
             }
             echo "</tbody></table></div>";
         }
     } else {
-        echo "<div class='border-l-4 border-[#4455DD] bg-blue-50 px-4 py-3 rounded text-gray-700'>
+        echo "<div class='border-l-4 border-[#4455DD] bg-blue-50 px-4 py-3 rounded text-sm text-gray-700'>
                 Masukkan NIS kamu di atas untuk melihat histori pengaduan.
               </div>";
     }

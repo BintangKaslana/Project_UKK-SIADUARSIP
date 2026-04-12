@@ -8,84 +8,26 @@
     --color-yellow-green: #BBDD22;
 }
 
-@layer base {
-    body {
-        background-color: #0a0a1a;
-    }
-}
-
-@layer components {
-    .star {
-        position: absolute;
-        background: white;
-        border-radius: 50%;
-        animation: twinkle var(--duration, 3s) ease-in-out infinite;
-        opacity: 0;
-    }
-
-    .shooting-star {
-        position: absolute;
-        width: 100px;
-        height: 1px;
-        background: linear-gradient(90deg, white, transparent);
-        animation: shoot var(--duration, 3s) ease-in infinite;
-        opacity: 0;
-    }
-}
-
 @layer utilities {
-    @keyframes twinkle {
-        0%, 100% { opacity: 0; transform: scale(0.8); }
-        50% { opacity: 1; transform: scale(1.2); }
-    }
-
-    @keyframes shoot {
-        0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
-        100% { transform: translateX(300px) translateY(300px) rotate(-45deg); opacity: 0; }
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-
-    .animate-float {
-        animation: float 4s ease-in-out infinite;
-    }
-
-    .glow-text {
-        text-shadow: 0 0 20px rgba(51, 170, 238, 0.8), 0 0 40px rgba(51, 170, 238, 0.4);
-    }
-
-    .glow-btn {
-        box-shadow: 0 0 15px rgba(51, 170, 238, 0.6), 0 0 30px rgba(51, 170, 238, 0.3);
-    }
-
-    .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    @layer utilities {
     .isolation-auto {
         isolation: auto;
     }
-    
+
     .before\:w-full::before { width: 100%; }
     .before\:-left-full::before { left: -100%; }
     .before\:hover\:w-full:hover::before { width: 100%; }
     .before\:hover\:left-0:hover::before { left: 0; }
     .before\:rounded-full::before { border-radius: 9999px; }
-    .before\:bg-\[\#33AAEE\]::before { background-color: #FFDD44; }
+    .before\:bg-\[\#33AAEE\]::before { background-color: #33AAEE; }
     .before\:-z-10::before { z-index: -10; }
     .before\:aspect-square::before { aspect-ratio: 1/1; }
     .before\:absolute::before { position: absolute; }
     .before\:transition-all::before { transition: all; }
     .before\:duration-700::before { transition-duration: 700ms; }
-    .before\:hover\:scale-150:hover::before { transform: scale(1.9); }
+    .before\:hover\:scale-150:hover::before { transform: scale(1.5); }
     .before\:hover\:duration-700:hover::before { transition-duration: 700ms; }
-
 }
+
 a.group::before,
 button.group::before {
     content: '';
@@ -107,5 +49,3 @@ button.group:hover::before {
     left: 0;
     transform: scale(1.5);
 }
-}
-
