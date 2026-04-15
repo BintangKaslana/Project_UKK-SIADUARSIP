@@ -34,6 +34,12 @@ $result = $stmt->fetchAll();
         </div>
     <?php } ?>
 
+    <?php if (isset($_GET['message']) && $_GET['message'] === 'spam_limit') { ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-3 text-sm font-semibold">
+            ⛔ NIS <strong><?= htmlspecialchars($_GET['nis'] ?? '') ?></strong> sudah mencapai batas maksimal <strong>3 pengaduan hari ini</strong>. Silakan coba lagi besok.
+        </div>
+    <?php } ?>
+
     <div class="bg-white rounded-xl shadow-lg border-t-4 border-[#4455DD] p-5">
         <form action="<?= BASE_PATH ?>/save_aspirasi" method="post" enctype="multipart/form-data" class="space-y-3">
             <div class="grid grid-cols-3 gap-3">
@@ -93,7 +99,7 @@ $result = $stmt->fetchAll();
                     </div>
 
             <div class="bg-[#FFDD44]/20 border-l-4 border-[#FFDD44] px-3 py-2 rounded text-xs text-gray-700">
-                ⚠️ Pastikan data yang kamu isi sudah benar sebelum mengirim.
+                ⚠️ Pastikan data yang kamu isi sudah benar sebelum mengirim. Batas pengaduan: <strong>3x per hari</strong> per NIS.
             </div>
             <button type="submit"
                     class="w-full bg-[#4455DD] text-white py-2 rounded-lg font-semibold hover:bg-[#33AAEE] transition">

@@ -26,6 +26,26 @@ if (!is_numeric($nis) || !is_numeric($categoryId)) {
     exit();
 }
 
+/* The code block you provided is checking for spam prevention by limiting the number of aspirations a
+user can submit in a day. Here's a breakdown of what it does: */
+$LIMIT_HARIAN = 3;
+$stmtSpam = $conn->prepare(
+    "SELECT COUNT(*) AS total
+     FROM input_aspirasi
+     WHERE nis = ?
+       AND DATE(created_at) = CURRENT_DATE"
+);
+$stmtSpam->execute([$nis]);
+$rowSpam = $stmtSpam->fetch();
+
+/* This code block is checking for spam prevention by limiting the number of aspirations a user can
+submit in a day. Here's a breakdown of what it does: */
+if ((int)$rowSpam['total'] >= $LIMIT_HARIAN) {
+    header('Location: ' . BASE_PATH . '/aspirasi?message=spam_limit&nis=' . urlencode($nis));
+    exit();
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Handle upload foto bukti (opsional)
 $bukti_foto = null;
 if (!empty($_FILES['bukti_foto']['name'])) {
@@ -78,15 +98,17 @@ if ($siswaTerdaftar) {
         header('Location: ' . BASE_PATH . '/aspirasi?message=nis_conflict&nis=' . urlencode($nis));
         exit();
     }
-    // NIS & nama cocok — tidak perlu insert ulang, lanjut saja
+    
 } else {
-    // NIS belum ada — insert siswa baru
+    
     $sqlSiswa = "INSERT INTO siswa (nis, full_name, class) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sqlSiswa);
     $stmt->execute([$nis, $fullname, $class]);
 }
 
-// Insert input_aspirasi dengan kolom bukti_foto
+/* The provided code snippet is responsible for inserting data into two database tables:
+`input_aspirasi` and `aspirasi`. */
+
 $sqlAspirasi = "INSERT INTO input_aspirasi (nis, category_id, location, description, bukti_foto)
                 VALUES (?, ?, ?, ?, ?) RETURNING id";
 $stmt = $conn->prepare($sqlAspirasi);
@@ -94,7 +116,7 @@ $stmt->execute([$nis, $categoryId, $location, $description, $bukti_foto]);
 $row = $stmt->fetch();
 $aspiration_id = $row['id'];
 
-// Insert ke aspirasi
+
 $sqlDetail = "INSERT INTO aspirasi (aspiration_id, status, feedback) VALUES (?, 'menunggu', '')";
 $stmt = $conn->prepare($sqlDetail);
 $stmt->execute([$aspiration_id]);
