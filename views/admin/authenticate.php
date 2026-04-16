@@ -1,7 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/bootstrap.php';
 
-// Hanya boleh diakses via POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . BASE_PATH . '/admin/login');
     exit();
@@ -15,12 +14,16 @@ if (empty($username) || empty($password)) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT password FROM admin WHERE username = ? LIMIT 1");
+$stmt = $conn->prepare("SELECT id, password, role, full_name FROM admin WHERE username = ? LIMIT 1");
 $stmt->execute([$username]);
 $row = $stmt->fetch();
 
 if ($row && password_verify($password, $row['password'])) {
     $_SESSION['admin_logged_in'] = true;
+    $_SESSION['admin_id']        = $row['id'];
+    $_SESSION['admin_username']  = $username;
+    $_SESSION['admin_role']      = $row['role'];
+    $_SESSION['admin_fullname']  = $row['full_name'] ?: $username;
     header('Location: ' . BASE_PATH . '/admin');
     exit();
 }

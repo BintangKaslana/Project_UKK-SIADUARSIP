@@ -14,7 +14,7 @@ if ($aspiration_id <= 0) {
     exit();
 }
 
-$sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location, ia.description, a.aspiration_id, a.status, a.feedback
+$sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location, ia.description, ia.bukti_foto, a.aspiration_id, a.status, a.feedback
         FROM input_aspirasi ia
         JOIN siswa s ON ia.nis = s.nis
         JOIN kategori k ON ia.category_id = k.id
@@ -42,6 +42,19 @@ if (!$row) {
             <div><span class="font-semibold text-gray-600">Kategori:</span> <?= htmlspecialchars($row['category_name'] ?? '') ?></div>
             <div><span class="font-semibold text-gray-600">Lokasi:</span> <?= htmlspecialchars($row['location'] ?? '') ?></div>
             <div class="col-span-2"><span class="font-semibold text-gray-600">Deskripsi:</span> <?= htmlspecialchars($row['description'] ?? '') ?></div>
+            <?php if (!empty($row['bukti_foto'])): ?>
+            <div class="col-span-2">
+                <span class="font-semibold text-gray-600">Bukti Foto:</span>
+                <div class="mt-2">
+                    <a href="<?= BASE_PATH ?>/public/uploads/bukti/<?= htmlspecialchars($row['bukti_foto']) ?>" target="_blank">
+                        <img src="<?= BASE_PATH ?>/public/uploads/bukti/<?= htmlspecialchars($row['bukti_foto']) ?>"
+                             alt="Bukti Foto"
+                             class="max-h-48 rounded-lg border border-gray-200 hover:opacity-90 transition object-contain">
+                    </a>
+                    <p class="text-xs text-gray-400 mt-1">Klik gambar untuk buka ukuran penuh</p>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

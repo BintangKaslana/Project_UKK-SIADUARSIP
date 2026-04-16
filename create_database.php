@@ -39,8 +39,11 @@ $queries = [
 
     "CREATE TABLE IF NOT EXISTS aspirasi (
         aspiration_id INTEGER NOT NULL REFERENCES input_aspirasi(id) ON DELETE CASCADE,
-        status        VARCHAR(10) NOT NULL DEFAULT 'menunggu'
+        status        VARCHAR(10)  NOT NULL DEFAULT 'menunggu'
                           CHECK (status IN ('menunggu','proses','selesai')),
+        review_status VARCHAR(10)  NOT NULL DEFAULT 'pending'
+                          CHECK (review_status IN ('pending','approved','rejected')),
+        is_anonim     BOOLEAN      NOT NULL DEFAULT FALSE,
         feedback      TEXT
     )",
 ];

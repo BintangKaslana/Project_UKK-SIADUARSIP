@@ -98,6 +98,16 @@ $result = $stmt->fetchAll();
                         </label>
                     </div>
 
+            <!-- Pilihan Anonim -->
+            <div class="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                <input type="checkbox" name="is_anonim" id="is_anonim" value="1"
+                       class="mt-0.5 accent-[#4455DD]">
+                <label for="is_anonim" class="text-xs text-gray-700 cursor-pointer">
+                    <span class="font-semibold text-[#4455DD]">Kirim secara anonim</span> — namamu tidak akan ditampilkan di histori publik.
+                    Data identitasmu tetap tersimpan untuk keperluan verifikasi admin.
+                </label>
+            </div>
+
             <div class="bg-[#FFDD44]/20 border-l-4 border-[#FFDD44] px-3 py-2 rounded text-xs text-gray-700">
                 ⚠️ Pastikan data yang kamu isi sudah benar sebelum mengirim. Batas pengaduan: <strong>3x per hari</strong> per NIS.
             </div>

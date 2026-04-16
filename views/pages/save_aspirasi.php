@@ -48,6 +48,7 @@ if ((int)$rowSpam['total'] >= $LIMIT_HARIAN) {
 
 // Handle upload foto bukti (opsional)
 $bukti_foto = null;
+$is_anonim  = isset($_POST['is_anonim']) && $_POST['is_anonim'] === '1' ? true : false;
 if (!empty($_FILES['bukti_foto']['name'])) {
     $file     = $_FILES['bukti_foto'];
     $maxSize  = 2 * 1024 * 1024; // 2MB
@@ -117,8 +118,8 @@ $row = $stmt->fetch();
 $aspiration_id = $row['id'];
 
 
-$sqlDetail = "INSERT INTO aspirasi (aspiration_id, status, feedback) VALUES (?, 'menunggu', '')";
+$sqlDetail = "INSERT INTO aspirasi (aspiration_id, status, review_status, is_anonim, feedback) VALUES (?, 'menunggu', 'pending', ?, '')";
 $stmt = $conn->prepare($sqlDetail);
-$stmt->execute([$aspiration_id]);
+$stmt->execute([$aspiration_id, $is_anonim ? 'true' : 'false']);
 
 header('Location: ' . BASE_PATH . '/aspirasi?message=success');

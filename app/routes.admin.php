@@ -12,5 +12,6 @@ return [
     '/admin/delete_admin' => VIEW_PATH . '/admin/delete_admin.php',
     '/admin/edit_aspirasi' => VIEW_PATH . '/admin/edit_aspirasi.php',
     '/admin/update_aspirasi' => VIEW_PATH . '/admin/update_aspirasi.php',
-    
+    '/admin/delete_aspirasi' => VIEW_PATH . '/admin/delete_aspirasi.php',
+    '/admin/review_aspirasi' => VIEW_PATH . '/admin/review_aspirasi.php',
 ];
