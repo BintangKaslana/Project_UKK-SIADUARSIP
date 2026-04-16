@@ -17,9 +17,9 @@
         </div>
         <!-- Menu desktop -->
         <div class="hidden md:flex items-center gap-6 ml-auto">
-    <a href="/ukk_bintang_26/" class="nav-link nav-beranda text-white text-sm font-medium">Beranda</a>
-    <a href="/ukk_bintang_26/aspirasi" class="nav-link nav-aspirasi text-white text-sm font-medium">Sampaikan Aspirasi</a>
-    <a href="/ukk_bintang_26/histori" class="nav-link nav-histori text-white text-sm font-medium">Histori Aspirasi</a>
+    <a href="/siaduarsip/" class="nav-link nav-beranda text-white text-sm font-medium">Beranda</a>
+    <a href="/siaduarsip/aspirasi" class="nav-link nav-aspirasi text-white text-sm font-medium">Sampaikan Aspirasi</a>
+    <a href="/siaduarsip/histori" class="nav-link nav-histori text-white text-sm font-medium">Histori Aspirasi</a>
 </div>
         <!-- Hamburger mobile -->
         <button id="menuBtn" class="md:hidden text-white focus:outline-none">

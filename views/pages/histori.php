@@ -29,6 +29,22 @@
     <?php
     $filterNis = trim($_GET['nis'] ?? '');
     if ($filterNis !== '') {
+        // --- PAGINATION ---
+        $per_page    = 5;
+        $page        = max(1, intval($_GET['page'] ?? 1));
+        $offset      = ($page - 1) * $per_page;
+
+        // Hitung total untuk NIS ini
+        $countStmt = $conn->prepare("SELECT COUNT(*) FROM input_aspirasi ia
+            JOIN siswa s ON ia.nis = s.nis
+            JOIN aspirasi a ON ia.id = a.aspiration_id
+            WHERE s.nis = ? AND a.review_status = 'approved'");
+        $countStmt->execute([$filterNis]);
+        $total_rows  = (int) $countStmt->fetchColumn();
+        $total_pages = max(1, (int) ceil($total_rows / $per_page));
+        if ($page > $total_pages) $page = $total_pages;
+        $offset = ($page - 1) * $per_page;
+
         $sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location,
                        ia.description, a.status, a.review_status, a.is_anonim, a.feedback,
                        a.feedback_by, adm.full_name AS admin_fullname, adm.username AS admin_username, adm.role AS admin_role,
@@ -40,18 +56,19 @@
                 LEFT JOIN admin adm ON a.feedback_by = adm.id
                 WHERE s.nis = ?
                   AND a.review_status = 'approved'
-                ORDER BY ia.id DESC";
+                ORDER BY ia.id DESC
+                LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$filterNis]);
+        $stmt->execute([$filterNis, $per_page, $offset]);
         $rows = $stmt->fetchAll();
 
-        if (count($rows) === 0) {
+        if ($total_rows === 0) {
             echo "<div class='bg-[#FFDD44]/20 border-l-4 border-[#FFDD44] px-4 py-3 rounded text-sm text-gray-700'>
                     Tidak ada pengaduan yang sudah disetujui untuk NIS <strong>$filterNis</strong>.
                     Pengaduanmu mungkin masih dalam proses review admin.
                   </div>";
         } else {
-            echo "<p class='text-gray-500 text-sm mb-2'>Menampilkan <strong>" . count($rows) . " pengaduan</strong> untuk NIS <strong>" . htmlspecialchars($filterNis) . "</strong></p>";
+            echo "<p class='text-gray-500 text-sm mb-2'>Menampilkan <strong>" . ($offset + 1) . "-" . min($offset + $per_page, $total_rows) . " dari $total_rows pengaduan</strong> untuk NIS <strong>" . htmlspecialchars($filterNis) . "</strong></p>";
             echo "<div class='overflow-x-auto'>";
             echo "<table class='w-full bg-white rounded-xl shadow text-sm table-fixed'>";
             echo "<colgroup>
@@ -159,6 +176,47 @@
                 </div>";
             }
             echo "</tbody></table></div>";
+
+            // --- UI PAGINATION HISTORI ---
+            if ($total_pages > 1) {
+                $baseUrl = '?nis=' . urlencode($filterNis) . '&';
+                echo "<div class='flex items-center justify-between mt-6'>";
+                echo "<p class='text-sm text-gray-500'>Halaman $page dari $total_pages</p>";
+                echo "<div class='flex items-center gap-1'>";
+
+                // Prev
+                if ($page > 1)
+                    echo "<a href='{$baseUrl}page=" . ($page - 1) . "' class='px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition'>&larr; Prev</a>";
+                else
+                    echo "<span class='px-3 py-1.5 rounded-lg border border-gray-100 text-sm text-gray-300 cursor-not-allowed'>&larr; Prev</span>";
+
+                // Page numbers
+                $range = 2;
+                $pStart = max(1, $page - $range);
+                $pEnd   = min($total_pages, $page + $range);
+                if ($pStart > 1) {
+                    echo "<a href='{$baseUrl}page=1' class='px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition'>1</a>";
+                    if ($pStart > 2) echo "<span class='px-2 text-gray-400 text-sm'>&hellip;</span>";
+                }
+                for ($i = $pStart; $i <= $pEnd; $i++) {
+                    if ($i === $page)
+                        echo "<span class='px-3 py-1.5 rounded-lg bg-[#4455DD] text-white text-sm font-bold'>$i</span>";
+                    else
+                        echo "<a href='{$baseUrl}page=$i' class='px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition'>$i</a>";
+                }
+                if ($pEnd < $total_pages) {
+                    if ($pEnd < $total_pages - 1) echo "<span class='px-2 text-gray-400 text-sm'>&hellip;</span>";
+                    echo "<a href='{$baseUrl}page=$total_pages' class='px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition'>$total_pages</a>";
+                }
+
+                // Next
+                if ($page < $total_pages)
+                    echo "<a href='{$baseUrl}page=" . ($page + 1) . "' class='px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition'>Next &rarr;</a>";
+                else
+                    echo "<span class='px-3 py-1.5 rounded-lg border border-gray-100 text-sm text-gray-300 cursor-not-allowed'>Next &rarr;</span>";
+
+                echo "</div></div>";
+            }
         }
     } else {
         echo "<div class='border-l-4 border-[#4455DD] bg-blue-50 px-4 py-3 rounded text-sm text-gray-700'>

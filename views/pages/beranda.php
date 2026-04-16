@@ -1,4 +1,4 @@
-<section class="min-h-screen bg-[#4455DD] flex items-center overflow-hidden -mt-8">
+    <section class="min-h-screen bg-[#4455DD] flex items-center overflow-hidden -mt-8">
     <div class="max-w-6xl mx-auto px-8 w-full py-4">
         <div class="flex flex-col md:flex-row items-center justify-between gap-12">
             <div class="max-w-lg text-center md:text-left">

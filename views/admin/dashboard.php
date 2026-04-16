@@ -11,15 +11,16 @@ $filterBulan    = isset($_GET['bulan'])    ? trim($_GET['bulan'])    : '';
 $filterTanggal  = isset($_GET['tanggal']) ? trim($_GET['tanggal'])  : '';
 $filterStatus   = isset($_GET['status'])  ? trim($_GET['status'])   : '';
 
+// --- PAGINATION ---
+$per_page    = 10;
+$page        = max(1, intval($_GET['page'] ?? 1));
+$offset      = ($page - 1) * $per_page;
+
 // Hitung aspirasi pending review untuk badge notifikasi
 $stmtPending  = $conn->query("SELECT COUNT(*) AS total FROM aspirasi WHERE review_status = 'pending'");
 $pendingCount = (int)$stmtPending->fetch()['total'];
 
-$sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location, ia.description,
-               ia.bukti_foto, a.aspiration_id, a.status, a.review_status, a.is_anonim,
-               a.feedback, a.feedback_by, adm.full_name AS fb_admin_name, adm.username AS fb_admin_user, adm.role AS fb_admin_role,
-               ia.created_at
-        FROM input_aspirasi ia
+$sqlBase = " FROM input_aspirasi ia
         JOIN siswa s    ON ia.nis         = s.nis
         JOIN kategori k ON ia.category_id = k.id
         JOIN aspirasi a ON ia.id          = a.aspiration_id
@@ -27,15 +28,31 @@ $sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location,
         WHERE 1=1";
 
 $params = [];
-if ($filterKategori !== '') { $sql .= " AND k.id = ?";                              $params[] = $filterKategori; }
-if ($filterNis !== '')      { $sql .= " AND s.nis = ?";                              $params[] = $filterNis; }
-if ($filterBulan !== '')    { $sql .= " AND TO_CHAR(ia.created_at, 'YYYY-MM') = ?"; $params[] = $filterBulan; }
-if ($filterTanggal !== '')  { $sql .= " AND DATE(ia.created_at) = ?";               $params[] = $filterTanggal; }
-if ($filterStatus !== '')   { $sql .= " AND a.status = ?";                           $params[] = $filterStatus; }
-$sql .= " ORDER BY ia.id DESC";
+if ($filterKategori !== '') { $sqlBase .= " AND k.id = ?";                              $params[] = $filterKategori; }
+if ($filterNis !== '')      { $sqlBase .= " AND s.nis = ?";                              $params[] = $filterNis; }
+if ($filterBulan !== '')    { $sqlBase .= " AND TO_CHAR(ia.created_at, 'YYYY-MM') = ?"; $params[] = $filterBulan; }
+if ($filterTanggal !== '')  { $sqlBase .= " AND DATE(ia.created_at) = ?";               $params[] = $filterTanggal; }
+if ($filterStatus !== '')   { $sqlBase .= " AND a.status = ?";                           $params[] = $filterStatus; }
 
+// Hitung total rows untuk pagination
+$countStmt = $conn->prepare("SELECT COUNT(*)" . $sqlBase);
+$countStmt->execute($params);
+$total_rows  = (int) $countStmt->fetchColumn();
+$total_pages = max(1, (int) ceil($total_rows / $per_page));
+if ($page > $total_pages) $page = $total_pages;
+
+// Ambil data dengan LIMIT + OFFSET
+$sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location, ia.description,
+               ia.bukti_foto, a.aspiration_id, a.status, a.review_status, a.is_anonim,
+               a.feedback, a.feedback_by, adm.full_name AS fb_admin_name, adm.username AS fb_admin_user, adm.role AS fb_admin_role,
+               ia.created_at" . $sqlBase . " ORDER BY ia.id DESC LIMIT :limit OFFSET :offset";
 $stmt = $conn->prepare($sql);
-$stmt->execute($params);
+foreach ($params as $i => $val) {
+    $stmt->bindValue($i + 1, $val);
+}
+$stmt->bindValue(':limit',  $per_page, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset,   PDO::PARAM_INT);
+$stmt->execute();
 $rows = $stmt->fetchAll();
 ?>
 
@@ -263,6 +280,59 @@ $rows = $stmt->fetchAll();
         </tbody>
     </table>
 </div>
+
+<!-- PAGINATION DASHBOARD -->
+<?php
+$queryParams = $_GET;
+unset($queryParams['page']);
+$queryString = http_build_query($queryParams);
+$baseUrl = BASE_PATH . '/admin' . ($queryString ? '?' . $queryString . '&' : '?');
+?>
+<?php if ($total_pages > 1): ?>
+<div class="flex items-center justify-between mt-6">
+    <p class="text-sm text-gray-500">
+        Menampilkan <?= $offset + 1 ?>–<?= min($offset + $per_page, $total_rows) ?> dari <?= $total_rows ?> aspirasi
+    </p>
+    <div class="flex items-center gap-1">
+        <?php if ($page > 1): ?>
+            <a href="<?= $baseUrl ?>page=<?= $page - 1 ?>"
+               class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">← Prev</a>
+        <?php else: ?>
+            <span class="px-3 py-1.5 rounded-lg border border-gray-100 text-sm text-gray-300 cursor-not-allowed">← Prev</span>
+        <?php endif; ?>
+
+        <?php
+        $range = 2;
+        $start = max(1, $page - $range);
+        $end   = min($total_pages, $page + $range);
+        ?>
+        <?php if ($start > 1): ?>
+            <a href="<?= $baseUrl ?>page=1" class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">1</a>
+            <?php if ($start > 2): ?><span class="px-2 text-gray-400 text-sm">…</span><?php endif; ?>
+        <?php endif; ?>
+
+        <?php for ($i = $start; $i <= $end; $i++): ?>
+            <?php if ($i === $page): ?>
+                <span class="px-3 py-1.5 rounded-lg bg-[#4455DD] text-white text-sm font-bold"><?= $i ?></span>
+            <?php else: ?>
+                <a href="<?= $baseUrl ?>page=<?= $i ?>" class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition"><?= $i ?></a>
+            <?php endif; ?>
+        <?php endfor; ?>
+
+        <?php if ($end < $total_pages): ?>
+            <?php if ($end < $total_pages - 1): ?><span class="px-2 text-gray-400 text-sm">…</span><?php endif; ?>
+            <a href="<?= $baseUrl ?>page=<?= $total_pages ?>" class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition"><?= $total_pages ?></a>
+        <?php endif; ?>
+
+        <?php if ($page < $total_pages): ?>
+            <a href="<?= $baseUrl ?>page=<?= $page + 1 ?>"
+               class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">Next →</a>
+        <?php else: ?>
+            <span class="px-3 py-1.5 rounded-lg border border-gray-100 text-sm text-gray-300 cursor-not-allowed">Next →</span>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <script>
 function openDashModal(id) {

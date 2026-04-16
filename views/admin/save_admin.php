@@ -11,13 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . BASE_PATH . '/admin/add_admin');
     exit();
 }
-$username  = isset($_POST['username'])  ? trim($_POST['username'])  : '';
-$full_name = isset($_POST['full_name']) ? trim($_POST['full_name']) : '';
-$role      = isset($_POST['role'])      ? trim($_POST['role'])      : 'admin';
+$username         = isset($_POST['username'])         ? trim($_POST['username'])         : '';
+$full_name        = isset($_POST['full_name'])        ? trim($_POST['full_name'])        : '';
+$role             = isset($_POST['role'])             ? trim($_POST['role'])             : 'admin';
+$password         = isset($_POST['password'])         ? $_POST['password']               : '';
+$password_confirm = isset($_POST['password_confirm']) ? $_POST['password_confirm']       : '';
 
 // Validasi
-if ($username === '' || $full_name === '') {
-    header('Location: ' . BASE_PATH . '/admin/add_admin');
+if ($username === '' || $full_name === '' || $password === '') {
+    header('Location: ' . BASE_PATH . '/admin/add_admin?error=empty');
+    exit();
+}
+if ($password !== $password_confirm) {
+    header('Location: ' . BASE_PATH . '/admin/add_admin?error=password_mismatch');
+    exit();
+}
+if (strlen($password) < 6) {
+    header('Location: ' . BASE_PATH . '/admin/add_admin?error=password_short');
     exit();
 }
 // Pastikan role valid
@@ -25,8 +35,7 @@ if (!in_array($role, ['admin', 'head_admin'])) {
     $role = 'admin';
 }
 
-$defaultPassword = '12345';
-$hash = password_hash($defaultPassword, PASSWORD_BCRYPT);
+$hash = password_hash($password, PASSWORD_BCRYPT);
 
 $stmt = $conn->prepare("INSERT INTO admin (username, password, full_name, role) VALUES (?, ?, ?, ?)");
 $stmt->execute([$username, $hash, $full_name, $role]);

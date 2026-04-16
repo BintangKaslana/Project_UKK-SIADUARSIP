@@ -20,7 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// Ambil semua aspirasi pending review
+// --- PAGINATION ---
+$per_page    = 5;
+$page        = max(1, intval($_GET['page'] ?? 1));
+$offset      = ($page - 1) * $per_page;
+
+// Hitung total pending
+$count_stmt  = $conn->query("SELECT COUNT(*) FROM aspirasi WHERE review_status = 'pending'");
+$total_rows  = (int) $count_stmt->fetchColumn();
+$total_pages = max(1, (int) ceil($total_rows / $per_page));
+if ($page > $total_pages) $page = $total_pages;
+
+// Ambil aspirasi pending dengan LIMIT + OFFSET
 $sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location,
                ia.description, ia.bukti_foto, a.aspiration_id, a.is_anonim, a.status, ia.created_at
         FROM input_aspirasi ia
@@ -28,13 +39,20 @@ $sql = "SELECT ia.id, s.nis, s.full_name, s.class, k.category_name, ia.location,
         JOIN kategori k ON ia.category_id = k.id
         JOIN aspirasi a ON ia.id = a.aspiration_id
         WHERE a.review_status = 'pending'
-        ORDER BY ia.created_at ASC";
-$stmt = $conn->query($sql);
+        ORDER BY ia.created_at ASC
+        LIMIT :limit OFFSET :offset";
+$stmt = $conn->prepare($sql);
+$stmt->bindValue(':limit',  $per_page, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset,   PDO::PARAM_INT);
+$stmt->execute();
 $rows = $stmt->fetchAll();
 ?>
 
 <?php if (isset($_GET['message']) && $_GET['message'] === 'approved') { ?>
     <div class="bg-[#BBDD22] text-gray-800 px-4 py-3 rounded-lg mb-4 text-sm font-semibold">✅ Aspirasi berhasil disetujui dan kini tampil di histori publik.</div>
+<?php } ?>
+<?php if (isset($_GET['message']) && $_GET['message'] === 'rejected') { ?>
+    <div class="bg-[#EE6666] text-white px-4 py-3 rounded-lg mb-4 text-sm font-semibold">🚫 Aspirasi ditolak dan tidak akan ditampilkan ke publik.</div>
 <?php } ?>
 
 <script>
@@ -54,9 +72,6 @@ function toggleDesc(id) {
     }
 }
 </script>
-<?php if (isset($_GET['message']) && $_GET['message'] === 'rejected') { ?>
-    <div class="bg-[#EE6666] text-white px-4 py-3 rounded-lg mb-4 text-sm font-semibold">🚫 Aspirasi ditolak dan tidak akan ditampilkan ke publik.</div>
-<?php } ?>
 
 <div class="flex items-center justify-between mb-4">
     <div>
@@ -64,11 +79,11 @@ function toggleDesc(id) {
         <p class="text-gray-500 text-sm mt-1">Aspirasi baru masuk perlu disetujui sebelum tampil di histori publik.</p>
     </div>
     <span class="bg-[#FFDD44] text-gray-800 text-xs font-bold px-3 py-1 rounded-full">
-        <?= count($rows) ?> menunggu review
+        <?= $total_rows ?> menunggu review
     </span>
 </div>
 
-<?php if (count($rows) === 0) { ?>
+<?php if ($total_rows === 0) { ?>
     <div class="bg-white rounded-xl shadow p-8 text-center text-gray-400">
         <div class="text-4xl mb-2">✅</div>
         <p class="font-semibold">Semua aspirasi sudah direview.</p>
@@ -160,4 +175,59 @@ function toggleDesc(id) {
         </div>
         <?php endforeach; ?>
     </div>
+
+    <!-- PAGINATION -->
+    <?php if ($total_pages > 1): ?>
+    <div class="flex items-center justify-between mt-6">
+        <p class="text-sm text-gray-500">
+            Menampilkan <?= $offset + 1 ?>–<?= min($offset + $per_page, $total_rows) ?> dari <?= $total_rows ?> aspirasi
+        </p>
+        <div class="flex items-center gap-1">
+            <!-- Prev -->
+            <?php if ($page > 1): ?>
+                <a href="?page=<?= $page - 1 ?>"
+                   class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
+                    ← Prev
+                </a>
+            <?php else: ?>
+                <span class="px-3 py-1.5 rounded-lg border border-gray-100 text-sm text-gray-300 cursor-not-allowed">← Prev</span>
+            <?php endif; ?>
+
+            <!-- Page numbers -->
+            <?php
+                $range = 2;
+                $start = max(1, $page - $range);
+                $end   = min($total_pages, $page + $range);
+            ?>
+            <?php if ($start > 1): ?>
+                <a href="?page=1" class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">1</a>
+                <?php if ($start > 2): ?><span class="px-2 text-gray-400 text-sm">…</span><?php endif; ?>
+            <?php endif; ?>
+
+            <?php for ($i = $start; $i <= $end; $i++): ?>
+                <?php if ($i === $page): ?>
+                    <span class="px-3 py-1.5 rounded-lg bg-[#4455DD] text-white text-sm font-bold"><?= $i ?></span>
+                <?php else: ?>
+                    <a href="?page=<?= $i ?>" class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition"><?= $i ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+
+            <?php if ($end < $total_pages): ?>
+                <?php if ($end < $total_pages - 1): ?><span class="px-2 text-gray-400 text-sm">…</span><?php endif; ?>
+                <a href="?page=<?= $total_pages ?>" class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition"><?= $total_pages ?></a>
+            <?php endif; ?>
+
+            <!-- Next -->
+            <?php if ($page < $total_pages): ?>
+                <a href="?page=<?= $page + 1 ?>"
+                   class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
+                    Next →
+                </a>
+            <?php else: ?>
+                <span class="px-3 py-1.5 rounded-lg border border-gray-100 text-sm text-gray-300 cursor-not-allowed">Next →</span>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
 <?php } ?>

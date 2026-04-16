@@ -18,13 +18,15 @@ $roleBadgeColor = $isHeadAdmin ? 'bg-[#FFDD44] text-gray-800' : 'bg-white/20 tex
             <?php endif; ?>
             <!-- Profil Admin -->
             <div class="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5">
-                <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
-                    <?= strtoupper(mb_substr($navFullname, 0, 1)) ?>
-                </div>
-                <div class="leading-tight">
-                    <p class="text-white text-xs font-semibold"><?= htmlspecialchars($navFullname) ?></p>
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded <?= $roleBadgeColor ?>"><?= $roleLabel ?></span>
-                </div>
+                <a href="<?= BASE_PATH ?>/admin/profile" class="flex items-center gap-2 hover:opacity-80 transition">
+                <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm ring-2 ring-white ring-offset-2 ring-offset-gray-800">
+    <?= strtoupper(mb_substr($navFullname, 0, 1)) ?>
+</div>
+                    <div class="leading-tight">
+                        <p class="text-white text-xs font-semibold"><?= htmlspecialchars($navFullname) ?></p>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded <?= $roleBadgeColor ?>"><?= $roleLabel ?></span>
+                    </div>
+                </a>
             </div>
             <a href="<?= BASE_PATH ?>/admin/logout" class="bg-[#EE6666] text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm font-semibold">Logout</a>
         </div>

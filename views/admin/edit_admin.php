@@ -52,6 +52,19 @@ $isSelf = ((int)$_SESSION['admin_id'] === $id);
                     </select>
                 <?php endif; ?>
             </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Password Baru</label>
+                <input type="password" name="password" 
+                       placeholder="Kosongkan jika tidak ingin mengubah password"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4455DD]">
+                <p class="text-xs text-gray-400 mt-1">Minimal 6 karakter. Biarkan kosong jika tidak ingin mengubah.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                <input type="password" name="password_confirm"
+                       placeholder="Ulangi password baru"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4455DD]">
+            </div>
             <div class="flex gap-3">
                 <button type="submit" class="bg-[#4455DD] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition">
                     Update

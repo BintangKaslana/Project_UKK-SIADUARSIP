@@ -11,9 +11,12 @@ $dropQueries = [
 
 $queries = [
     "CREATE TABLE IF NOT EXISTS admin (
-        id       SERIAL PRIMARY KEY,
-        username VARCHAR(50)  NOT NULL,
-        password VARCHAR(255) NOT NULL
+        id        SERIAL PRIMARY KEY,
+        username  VARCHAR(50)  NOT NULL,
+        password  VARCHAR(255) NOT NULL,
+        full_name VARCHAR(100) NOT NULL DEFAULT '',
+        role      VARCHAR(20)  NOT NULL DEFAULT 'admin'
+                      CHECK (role IN ('admin','head_admin'))
     )",
 
     "CREATE TABLE IF NOT EXISTS kategori (
@@ -44,7 +47,8 @@ $queries = [
         review_status VARCHAR(10)  NOT NULL DEFAULT 'pending'
                           CHECK (review_status IN ('pending','approved','rejected')),
         is_anonim     BOOLEAN      NOT NULL DEFAULT FALSE,
-        feedback      TEXT
+        feedback      TEXT,
+        feedback_by   INTEGER      REFERENCES admin(id) ON DELETE SET NULL
     )",
 ];
 
@@ -57,9 +61,8 @@ foreach ($queries as $sql) {
 
 $conn->exec("INSERT INTO kategori (category_name) VALUES ('Fasilitas'), ('Kebersihan'), ('Keamanan')");
 
-$adminUsername = 'admin';
-$adminPassword = password_hash('admin123', PASSWORD_BCRYPT);
-$stmt = $conn->prepare("INSERT INTO admin (username, password) VALUES (?, ?)");
-$stmt->execute([$adminUsername, $adminPassword]);
+// Seed: 1 head_admin default
+$stmt = $conn->prepare("INSERT INTO admin (username, password, full_name, role) VALUES (?, ?, ?, ?)");
+$stmt->execute(['admin', password_hash('admin123', PASSWORD_BCRYPT), 'Administrator', 'head_admin']);
 
 echo "Tabel berhasil dibuat dan data awal berhasil dimasukkan.";
