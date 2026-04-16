@@ -90,7 +90,7 @@ siaduarsip/
 
 - **Backend:** PHP (native, tanpa framework)
 - **Database:** PostgreSQL (via PDO)
-- **Frontend:** HTML, Tailwind CSS (CDN)
+- **Frontend:** HTML, Tailwind CSS (CLI)
 - **Server:** Apache / Laragon
 - **Package Manager:** npm (untuk dependensi frontend)
 
